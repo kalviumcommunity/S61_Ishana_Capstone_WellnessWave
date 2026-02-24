@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "name": "Vitamin C 1000mg",
+    "category": "Vitamins & Supplements",
+    "price": 599,
+    "description": "High-potency Vitamin C supplement to boost immunity and overall health",
+    "image": "vitamin-c.jpg",
+    "inStock": true,
+    "quantity": 50
+  },
+  {
+    "id": 2,
+    "name": "Aspirin 500mg",
+    "category": "Pain Relief",
+    "price": 249,
+    "description": "Effective pain reliever and fever reducer for headaches and body aches",
+    "image": "aspirin.jpg",
+    "inStock": true,
+    "quantity": 100
+  },
+  {
+    "id": 3,
+    "name": "Cough Syrup 200ml",
+    "category": "Cold & Cough",
+    "price": 189,
+    "description": "Fast-acting cough relief syrup for dry and wet coughs",
+    "image": "cough-syrup.jpg",
+    "inStock": true,
+    "quantity": 75
+  },
+  {
+    "id": 4,
+    "name": "Multivitamin Tablet",
+    "category": "Vitamins & Supplements",
+    "price": 799,
+    "description": "Daily multivitamin with essential nutrients for overall wellness",
+    "image": "multivitamin.jpg",
+    "inStock": true,
+    "quantity": 45
+  },
+  {
+    "id": 5,
+    "name": "Antacid Tablets",
+    "category": "Digestive Health",
+    "price": 159,
+    "description": "Fast relief from acidity and heartburn",
+    "image": "antacid.jpg",
+    "inStock": true,
+    "quantity": 60
+  },
+  {
+    "id": 6,
+    "name": "Bandages Pack",
+    "category": "First Aid",
+    "price": 99,
+    "description": "Sterile adhesive bandages for minor cuts and wounds",
+    "image": "bandages.jpg",
+    "inStock": true,
+    "quantity": 120
+  },
+  {
+    "id": 7,
+    "name": "Hand Sanitizer 500ml",
+    "category": "Hygiene",
+    "price": 129,
+    "description": "Alcohol-based hand sanitizer for effective germ protection",
+    "image": "hand-sanitizer.jpg",
+    "inStock": true,
+    "quantity": 150
+  },
+  {
+    "id": 8,
+    "name": "Digital Thermometer",
+    "category": "Medical Devices",
+    "price": 899,
+    "description": "Fast and accurate digital thermometer with LCD display",
+    "image": "thermometer.jpg",
+    "inStock": false,
+    "quantity": 0
+  },
+  {
+    "id": 9,
+    "name": "Omega-3 Fish Oil",
+    "category": "Vitamins & Supplements",
+    "price": 1299,
+    "description": "Premium Omega-3 supplement for heart and brain health",
+    "image": "omega3.jpg",
+    "inStock": true,
+    "quantity": 30
+  },
+  {
+    "id": 10,
+    "name": "Pain Relief Cream",
+    "category": "Pain Relief",
+    "price": 349,
+    "description": "Topical pain relief cream for muscle and joint pain",
+    "image": "pain-cream.jpg",
+    "inStock": true,
+    "quantity": 40
+  }
+]
