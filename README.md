@@ -59,6 +59,14 @@ The platform provides a secure checkout process with multiple payment methods. A
 - Design product listing and product detail pages
 - Implement search and filtering functionality (frontend logic)
 
+### 🗓 Day 6
+- Set up backend server
+- Design database schema for products and users
+
+### 🗓 Day 7
+- Implement user authentication (Signup/Login)
+- Connect frontend with backend APIs
+
 ---
 
 ## Project Goal
