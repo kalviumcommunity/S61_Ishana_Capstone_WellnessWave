@@ -1,4 +1,11 @@
+const fs = require('fs');
+const path = require('path');
 const products = require('../data/products.json');
+const DATA_FILE_PATH = path.join(__dirname, '../data/products.json');
+
+const saveProducts = (updatedProducts) => {
+  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updatedProducts, null, 2));
+};
 
 // GET all products & Query parameters: category, minPrice, maxPrice, search
 const getAllProducts = (req, res) => {
@@ -140,9 +147,63 @@ const getProductsPaginated = (req, res) => {
   }
 };
 
+// POST create a new product
+const createProduct = (req, res) => {
+  try {
+    const { name, category, price, description, image, inStock, quantity } = req.body;
+
+    if (!name || !category || price === undefined || !description || !image || quantity === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+        requiredFields: ['name', 'category', 'price', 'description', 'image', 'quantity']
+      });
+    }
+
+    const parsedPrice = Number(price);
+    const parsedQuantity = Number(quantity);
+
+    if (Number.isNaN(parsedPrice) || parsedPrice < 0 || Number.isNaN(parsedQuantity) || parsedQuantity < 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid price or quantity'
+      });
+    }
+
+    const nextId = products.length > 0 ? Math.max(...products.map(product => product.id)) + 1 : 1;
+
+    const newProduct = {
+      id: nextId,
+      name: String(name).trim(),
+      category: String(category).trim(),
+      price: parsedPrice,
+      description: String(description).trim(),
+      image: String(image).trim(),
+      inStock: typeof inStock === 'boolean' ? inStock : parsedQuantity > 0,
+      quantity: parsedQuantity
+    };
+
+    products.push(newProduct);
+    saveProducts(products);
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: newProduct
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create product',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   getProductsByCategory,
-  getProductsPaginated
+  getProductsPaginated,
+  createProduct
 };
