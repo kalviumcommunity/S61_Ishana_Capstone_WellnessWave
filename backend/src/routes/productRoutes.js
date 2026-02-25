@@ -4,11 +4,15 @@ const {
   getAllProducts,
   getProductById,
   getProductsByCategory,
-  getProductsPaginated
+  getProductsPaginated,
+  createProduct
 } = require('../controllers/productController');
 
 // GET /api/products & Retrieve all products with optional filters
 router.get('/', getAllProducts);
+
+// POST /api/products & Create a new product
+router.post('/', createProduct);
 
 // GET /api/products/paginated & Retrieve products with pagination
 router.get('/paginated', getProductsPaginated);

@@ -98,5 +98,15 @@
     "image": "pain-cream.jpg",
     "inStock": true,
     "quantity": 40
+  },
+  {
+    "id": 11,
+    "name": "Paracetamol",
+    "category": "Medicine",
+    "price": 50,
+    "description": "Pain relief tablet",
+    "image": "paracetamol.jpg",
+    "inStock": true,
+    "quantity": 100
   }
 ]
