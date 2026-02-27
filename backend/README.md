@@ -49,6 +49,10 @@ The server will run on `http://localhost:5000`
     }
     ```
 
+- **PUT /api/products/:id** - Update an existing product by ID
+  - Body fields are optional and can include: `name`, `category`, `price`, `description`, `image`, `quantity`, `inStock`
+  - Example: `/api/products/3`
+
 - **GET /api/products/:id** - Get a specific product by ID
   - Example: `/api/products/1`
 
