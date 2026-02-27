@@ -200,10 +200,91 @@ const createProduct = (req, res) => {
   }
 };
 
+// PUT update an existing product by ID
+const updateProduct = (req, res) => {
+  try {
+    const { id } = req.params;
+    const productId = parseInt(id);
+    const productIndex = products.findIndex(product => product.id === productId);
+
+    if (productIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    const { name, category, price, description, image, inStock, quantity } = req.body;
+    const updatedProduct = { ...products[productIndex] };
+
+    if (name !== undefined) {
+      updatedProduct.name = String(name).trim();
+    }
+
+    if (category !== undefined) {
+      updatedProduct.category = String(category).trim();
+    }
+
+    if (description !== undefined) {
+      updatedProduct.description = String(description).trim();
+    }
+
+    if (image !== undefined) {
+      updatedProduct.image = String(image).trim();
+    }
+
+    if (price !== undefined) {
+      const parsedPrice = Number(price);
+      if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid price'
+        });
+      }
+      updatedProduct.price = parsedPrice;
+    }
+
+    if (quantity !== undefined) {
+      const parsedQuantity = Number(quantity);
+      if (Number.isNaN(parsedQuantity) || parsedQuantity < 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid quantity'
+        });
+      }
+      updatedProduct.quantity = parsedQuantity;
+
+      if (inStock === undefined) {
+        updatedProduct.inStock = parsedQuantity > 0;
+      }
+    }
+
+    if (inStock !== undefined) {
+      updatedProduct.inStock = Boolean(inStock);
+    }
+
+    products[productIndex] = updatedProduct;
+    saveProducts(products);
+
+    res.status(200).json({
+      success: true,
+      message: 'Product updated successfully',
+      data: updatedProduct
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update product',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   getProductsByCategory,
   getProductsPaginated,
-  createProduct
+  createProduct,
+  updateProduct
 };
