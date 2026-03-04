@@ -1,15 +1,14 @@
-const Product = require('../models/Product');
+const Category = require('../models/Category');
 
 // GET all unique categories
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Product.distinct('category');
-    categories.sort((a, b) => a.localeCompare(b));
+    const categories = await Category.find().sort({ name: 1 }).select('name');
 
     res.status(200).json({
       success: true,
       count: categories.length,
-      data: categories
+      data: categories.map((category) => category.name)
     });
   } catch (error) {
     res.status(500).json({
@@ -23,17 +22,24 @@ const getAllCategories = async (req, res) => {
 //GET category details with product count
 const getCategoryDetails = async (req, res) => {
   try {
-    const categoryDetails = await Product.aggregate([
+    const categoryDetails = await Category.aggregate([
       {
-        $group: {
-          _id: '$category',
-          productCount: { $sum: 1 }
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: 'category',
+          as: 'products'
+        }
+      },
+      {
+        $addFields: {
+          productCount: { $size: '$products' }
         }
       },
       {
         $project: {
           _id: 0,
-          name: '$_id',
+          name: '$name',
           productCount: 1
         }
       },

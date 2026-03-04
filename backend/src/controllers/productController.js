@@ -1,4 +1,49 @@
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+
+const formatProductResponse = (productDoc) => {
+  const product = productDoc.toObject ? productDoc.toObject() : productDoc;
+  let categoryValue = product.category;
+
+  if (product.category && typeof product.category === 'object' && product.category.name) {
+    categoryValue = product.category.name;
+  }
+
+  return {
+    ...product,
+    category: categoryValue
+  };
+};
+
+const resolveCategory = async (categoryInput) => {
+  if (!categoryInput) {
+    return null;
+  }
+
+  const categoryValue = String(categoryInput).trim();
+
+  if (!categoryValue) {
+    return null;
+  }
+
+  if (categoryValue.match(/^[0-9a-fA-F]{24}$/)) {
+    const categoryById = await Category.findById(categoryValue);
+    if (categoryById) {
+      return categoryById;
+    }
+  }
+
+  const normalizedName = categoryValue.replace(/\s+/g, ' ').trim();
+  const categoryByName = await Category.findOne({
+    name: new RegExp(`^${normalizedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+  });
+
+  if (categoryByName) {
+    return categoryByName;
+  }
+
+  return Category.create({ name: normalizedName });
+};
 
 // GET all products & Query parameters: category, minPrice, maxPrice, search
 const getAllProducts = async (req, res) => {
@@ -6,7 +51,20 @@ const getAllProducts = async (req, res) => {
     const query = {};
 
     if (req.query.category) {
-      query.category = new RegExp(`^${req.query.category}$`, 'i');
+      const categoryFilter = String(req.query.category).trim();
+      const categoryMatch = await Category.findOne({
+        name: new RegExp(`^${categoryFilter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+      });
+
+      if (!categoryMatch) {
+        return res.status(200).json({
+          success: true,
+          count: 0,
+          data: []
+        });
+      }
+
+      query.category = categoryMatch._id;
     }
 
     if (req.query.minPrice) {
@@ -34,12 +92,14 @@ const getAllProducts = async (req, res) => {
       query.inStock = true;
     }
 
-    const filteredProducts = await Product.find(query).sort({ createdAt: -1 });
+    const filteredProducts = await Product.find(query)
+      .populate('category', 'name')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       count: filteredProducts.length,
-      data: filteredProducts
+      data: filteredProducts.map(formatProductResponse)
     });
   } catch (error) {
     res.status(500).json({
@@ -54,7 +114,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate('category', 'name');
 
     if (!product) {
       return res.status(404).json({
@@ -65,7 +125,7 @@ const getProductById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: product
+      data: formatProductResponse(product)
     });
   } catch (error) {
     res.status(500).json({
@@ -80,9 +140,22 @@ const getProductById = async (req, res) => {
 const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
+    const categoryMatch = await Category.findOne({
+      name: new RegExp(`^${String(category).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+    });
+
+    if (!categoryMatch) {
+      return res.status(404).json({
+        success: false,
+        error: `No products found in category: ${category}`
+      });
+    }
+
     const categoryProducts = await Product.find({
-      category: new RegExp(`^${category}$`, 'i')
-    }).sort({ createdAt: -1 });
+      category: categoryMatch._id
+    })
+      .populate('category', 'name')
+      .sort({ createdAt: -1 });
 
     if (categoryProducts.length === 0) {
       return res.status(404).json({
@@ -95,7 +168,7 @@ const getProductsByCategory = async (req, res) => {
       success: true,
       count: categoryProducts.length,
       category: category,
-      data: categoryProducts
+      data: categoryProducts.map(formatProductResponse)
     });
   } catch (error) {
     res.status(500).json({
@@ -114,6 +187,7 @@ const getProductsPaginated = async (req, res) => {
     const startIndex = (page - 1) * limit;
     const totalProducts = await Product.countDocuments();
     const paginatedProducts = await Product.find()
+      .populate('category', 'name')
       .sort({ createdAt: -1 })
       .skip(startIndex)
       .limit(limit);
@@ -130,7 +204,7 @@ const getProductsPaginated = async (req, res) => {
         hasPreviousPage: page > 1
       },
       count: paginatedProducts.length,
-      data: paginatedProducts
+      data: paginatedProducts.map(formatProductResponse)
     });
   } catch (error) {
     res.status(500).json({
@@ -164,9 +238,18 @@ const createProduct = async (req, res) => {
       });
     }
 
+    const resolvedCategory = await resolveCategory(category);
+
+    if (!resolvedCategory) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid category'
+      });
+    }
+
     const newProduct = {
       name: String(name).trim(),
-      category: String(category).trim(),
+      category: resolvedCategory._id,
       price: parsedPrice,
       description: String(description).trim(),
       image: String(image).trim(),
@@ -175,11 +258,12 @@ const createProduct = async (req, res) => {
     };
 
     const createdProduct = await Product.create(newProduct);
+    const populatedProduct = await Product.findById(createdProduct._id).populate('category', 'name');
 
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      data: createdProduct
+      data: formatProductResponse(populatedProduct)
     });
   } catch (error) {
     res.status(500).json({
@@ -219,7 +303,16 @@ const updateProduct = async (req, res) => {
     }
 
     if (category !== undefined) {
-      updatedProduct.category = String(category).trim();
+      const resolvedCategory = await resolveCategory(category);
+
+      if (!resolvedCategory) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid category'
+        });
+      }
+
+      updatedProduct.category = resolvedCategory._id;
     }
 
     if (description !== undefined) {
@@ -263,12 +356,12 @@ const updateProduct = async (req, res) => {
     const savedProduct = await Product.findByIdAndUpdate(id, updatedProduct, {
       new: true,
       runValidators: true
-    });
+    }).populate('category', 'name');
 
     res.status(200).json({
       success: true,
       message: 'Product updated successfully',
-      data: savedProduct
+      data: formatProductResponse(savedProduct)
     });
   } catch (error) {
     res.status(500).json({
