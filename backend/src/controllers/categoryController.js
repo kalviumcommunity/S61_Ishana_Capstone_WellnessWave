@@ -1,14 +1,14 @@
-const products = require('../data/products.json');
+const Category = require('../models/Category');
 
 // GET all unique categories
-const getAllCategories = (req, res) => {
+const getAllCategories = async (req, res) => {
   try {
-    const categories = [...new Set(products.map(p => p.category))].sort();
+    const categories = await Category.find().sort({ name: 1 }).select('name');
 
     res.status(200).json({
       success: true,
       count: categories.length,
-      data: categories
+      data: categories.map((category) => category.name)
     });
   } catch (error) {
     res.status(500).json({
@@ -20,14 +20,33 @@ const getAllCategories = (req, res) => {
 };
 
 //GET category details with product count
-const getCategoryDetails = (req, res) => {
+const getCategoryDetails = async (req, res) => {
   try {
-    const categories = [...new Set(products.map(p => p.category))].sort();
-    
-    const categoryDetails = categories.map(category => ({
-      name: category,
-      productCount: products.filter(p => p.category === category).length
-    }));
+    const categoryDetails = await Category.aggregate([
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: 'category',
+          as: 'products'
+        }
+      },
+      {
+        $addFields: {
+          productCount: { $size: '$products' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$name',
+          productCount: 1
+        }
+      },
+      {
+        $sort: { name: 1 }
+      }
+    ]);
 
     res.status(200).json({
       success: true,

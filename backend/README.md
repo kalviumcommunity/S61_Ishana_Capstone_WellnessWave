@@ -33,6 +33,26 @@ The server will run on `http://localhost:5000`
   - Query parameters: `category`, `minPrice`, `maxPrice`, `search`, `inStock`
   - Example: `/api/products?category=Vitamins%20&%20Supplements&minPrice=500&maxPrice=1000`
 
+- **POST /api/products** - Create a new product
+  - Required body fields: `name`, `category`, `price`, `description`, `image`, `quantity`
+  - Optional body field: `inStock` (defaults based on quantity)
+  - Example body:
+    ```json
+    {
+      "name": "Zinc Tablets 50mg",
+      "category": "Vitamins & Supplements",
+      "price": 399,
+      "description": "Daily zinc supplement for immune support",
+      "image": "zinc-tablets.jpg",
+      "quantity": 35,
+      "inStock": true
+    }
+    ```
+
+- **PUT /api/products/:id** - Update an existing product by ID
+  - Body fields are optional and can include: `name`, `category`, `price`, `description`, `image`, `quantity`, `inStock`
+  - Example: `/api/products/3`
+
 - **GET /api/products/:id** - Get a specific product by ID
   - Example: `/api/products/1`
 

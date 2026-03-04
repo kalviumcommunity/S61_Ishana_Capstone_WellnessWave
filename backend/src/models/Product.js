@@ -1,28 +1,43 @@
-// Product model
-class Product {
-  constructor(id, name, category, price, description, image, inStock, quantity) {
-    this.id = id;
-    this.name = name;
-    this.category = category;
-    this.price = price;
-    this.description = description;
-    this.image = image;
-    this.inStock = inStock;
-    this.quantity = quantity;
-  }
+const mongoose = require("mongoose");
 
-  getInfo() {
-    return {
-      id: this.id,
-      name: this.name,
-      category: this.category,
-      price: this.price,
-      description: this.description,
-      image: this.image,
-      inStock: this.inStock,
-      quantity: this.quantity
-    };
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    image: {
+      type: String,
+      required: true
+    },
+    inStock: {
+      type: Boolean,
+      default: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0
+    }
+  },
+  {
+    timestamps: true
   }
-}
+);
 
-module.exports = Product;
+module.exports = mongoose.model("Product", productSchema);
