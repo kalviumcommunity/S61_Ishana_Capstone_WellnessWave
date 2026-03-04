@@ -1,0 +1,42 @@
+export const products = [
+  {
+    id: 1,
+    name: 'Vitamin C 1000mg',
+    category: 'Vitamins & Supplements',
+    price: 599,
+    description: 'High-potency Vitamin C supplement to boost immunity and overall health',
+    inStock: true,
+  },
+  {
+    id: 2,
+    name: 'Aspirin 500mg',
+    category: 'Pain Relief',
+    price: 249,
+    description: 'Effective pain reliever and fever reducer for headaches and body aches',
+    inStock: true,
+  },
+  {
+    id: 3,
+    name: 'Cough Syrup 200ml',
+    category: 'Cold & Cough',
+    price: 189,
+    description: 'Fast-acting cough relief syrup for dry and wet coughs',
+    inStock: true,
+  },
+  {
+    id: 4,
+    name: 'Multivitamin Tablet',
+    category: 'Vitamins & Supplements',
+    price: 799,
+    description: 'Daily multivitamin with essential nutrients for overall wellness',
+    inStock: true,
+  },
+  {
+    id: 5,
+    name: 'Digital Thermometer',
+    category: 'Medical Devices',
+    price: 899,
+    description: 'Fast and accurate digital thermometer with LCD display',
+    inStock: false,
+  },
+]
