@@ -83,6 +83,10 @@ The server will run on `http://localhost:5001`
   - Required fields: `username`, `password`
   - Returns JWT token
 
+- **POST /api/auth/google** - Login/Register with Google ID token
+  - Required field: `idToken`
+  - Verifies token using Google and returns JWT token
+
 - **GET /api/auth/me** - Get current logged-in user (Protected)
   - Requires header: `Authorization: Bearer <token>`
 
@@ -90,6 +94,7 @@ The server will run on `http://localhost:5001`
 
 - `MONGO_URI` - MongoDB connection string (required)
 - `JWT_SECRET` - Secret key used to sign JWT tokens (recommended)
+- `GOOGLE_CLIENT_ID` - Google OAuth Web Client ID used for token verification (required for Google auth)
 
 ### Health Check
 
