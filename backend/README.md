@@ -23,7 +23,7 @@ npm run dev
 npm start
 ```
 
-The server will run on `http://localhost:5000`
+The server will run on `http://localhost:5001`
 
 ## API Endpoints
 
@@ -33,9 +33,10 @@ The server will run on `http://localhost:5000`
   - Query parameters: `category`, `minPrice`, `maxPrice`, `search`, `inStock`
   - Example: `/api/products?category=Vitamins%20&%20Supplements&minPrice=500&maxPrice=1000`
 
-- **POST /api/products** - Create a new product
+- **POST /api/products** - Create a new product (Protected)
   - Required body fields: `name`, `category`, `price`, `description`, `image`, `quantity`
   - Optional body field: `inStock` (defaults based on quantity)
+  - Requires header: `Authorization: Bearer <token>`
   - Example body:
     ```json
     {
@@ -49,9 +50,13 @@ The server will run on `http://localhost:5000`
     }
     ```
 
-- **PUT /api/products/:id** - Update an existing product by ID
+- **PUT /api/products/:id** - Update an existing product by ID (Protected)
   - Body fields are optional and can include: `name`, `category`, `price`, `description`, `image`, `quantity`, `inStock`
+  - Requires header: `Authorization: Bearer <token>`
   - Example: `/api/products/3`
+
+- **POST /api/products/upload-image** - Upload product image (Protected)
+  - Requires header: `Authorization: Bearer <token>`
 
 - **GET /api/products/:id** - Get a specific product by ID
   - Example: `/api/products/1`
@@ -68,6 +73,23 @@ The server will run on `http://localhost:5000`
 - **GET /api/categories** - Get all unique product categories
 
 - **GET /api/categories/details** - Get all categories with product count
+
+### Authentication
+
+- **POST /api/auth/register** - Register a new user
+  - Required fields: `username`, `password`
+
+- **POST /api/auth/login** - Login with username/password
+  - Required fields: `username`, `password`
+  - Returns JWT token
+
+- **GET /api/auth/me** - Get current logged-in user (Protected)
+  - Requires header: `Authorization: Bearer <token>`
+
+### Environment Variables
+
+- `MONGO_URI` - MongoDB connection string (required)
+- `JWT_SECRET` - Secret key used to sign JWT tokens (recommended)
 
 ### Health Check
 

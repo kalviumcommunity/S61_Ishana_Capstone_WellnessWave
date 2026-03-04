@@ -9,18 +9,19 @@ const {
   updateProduct,
   uploadProductImage
 } = require('../controllers/productController');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 // GET /api/products & Retrieve all products with optional filters
 router.get('/', getAllProducts);
 
 // POST /api/products & Create a new product
-router.post('/', createProduct);
+router.post('/', authenticateToken, createProduct);
 
 // POST /api/products/upload-image & Upload product image
-router.post('/upload-image', uploadProductImage);
+router.post('/upload-image', authenticateToken, uploadProductImage);
 
 // PUT /api/products/:id & Update an existing product by ID
-router.put('/:id', updateProduct);
+router.put('/:id', authenticateToken, updateProduct);
 
 // GET /api/products/paginated & Retrieve products with pagination
 router.get('/paginated', getProductsPaginated);
