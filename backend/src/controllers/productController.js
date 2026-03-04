@@ -1,48 +1,40 @@
-const fs = require('fs');
-const path = require('path');
-const products = require('../data/products.json');
-const DATA_FILE_PATH = path.join(__dirname, '../data/products.json');
-
-const saveProducts = (updatedProducts) => {
-  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updatedProducts, null, 2));
-};
+const Product = require('../models/Product');
 
 // GET all products & Query parameters: category, minPrice, maxPrice, search
-const getAllProducts = (req, res) => {
+const getAllProducts = async (req, res) => {
   try {
-    let filteredProducts = [...products];
+    const query = {};
 
-    // Filter by category
     if (req.query.category) {
-      filteredProducts = filteredProducts.filter(
-        product => product.category.toLowerCase() === req.query.category.toLowerCase()
-      );
+      query.category = new RegExp(`^${req.query.category}$`, 'i');
     }
 
-    // Filter by price range
     if (req.query.minPrice) {
       const minPrice = parseFloat(req.query.minPrice);
-      filteredProducts = filteredProducts.filter(product => product.price >= minPrice);
+      if (!Number.isNaN(minPrice)) {
+        query.price = { ...(query.price || {}), $gte: minPrice };
+      }
     }
 
     if (req.query.maxPrice) {
       const maxPrice = parseFloat(req.query.maxPrice);
-      filteredProducts = filteredProducts.filter(product => product.price <= maxPrice);
+      if (!Number.isNaN(maxPrice)) {
+        query.price = { ...(query.price || {}), $lte: maxPrice };
+      }
     }
 
-    // Search by product name
     if (req.query.search) {
-      const searchTerm = req.query.search.toLowerCase();
-      filteredProducts = filteredProducts.filter(
-        product => product.name.toLowerCase().includes(searchTerm) ||
-                   product.description.toLowerCase().includes(searchTerm)
-      );
+      query.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } }
+      ];
     }
 
-    // Filter by stock availability
     if (req.query.inStock === 'true') {
-      filteredProducts = filteredProducts.filter(product => product.inStock === true);
+      query.inStock = true;
     }
+
+    const filteredProducts = await Product.find(query).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -59,10 +51,10 @@ const getAllProducts = (req, res) => {
 };
 
 // GET a single product by ID
-const getProductById = (req, res) => {
+const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = products.find(p => p.id === parseInt(id));
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({
@@ -85,12 +77,12 @@ const getProductById = (req, res) => {
 };
 
 // GET products by category
-const getProductsByCategory = (req, res) => {
+const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const categoryProducts = products.filter(
-      p => p.category.toLowerCase() === category.toLowerCase()
-    );
+    const categoryProducts = await Product.find({
+      category: new RegExp(`^${category}$`, 'i')
+    }).sort({ createdAt: -1 });
 
     if (categoryProducts.length === 0) {
       return res.status(404).json({
@@ -115,15 +107,17 @@ const getProductsByCategory = (req, res) => {
 };
 
 // GET products with pagination
-const getProductsPaginated = (req, res) => {
+const getProductsPaginated = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-
-    const totalProducts = products.length;
-    const paginatedProducts = products.slice(startIndex, endIndex);
+    const totalProducts = await Product.countDocuments();
+    const paginatedProducts = await Product.find()
+      .sort({ createdAt: -1 })
+      .skip(startIndex)
+      .limit(limit);
+    const endIndex = startIndex + paginatedProducts.length;
 
     res.status(200).json({
       success: true,
@@ -148,7 +142,7 @@ const getProductsPaginated = (req, res) => {
 };
 
 // POST create a new product
-const createProduct = (req, res) => {
+const createProduct = async (req, res) => {
   try {
     const { name, category, price, description, image, inStock, quantity } = req.body;
 
@@ -170,10 +164,7 @@ const createProduct = (req, res) => {
       });
     }
 
-    const nextId = products.length > 0 ? Math.max(...products.map(product => product.id)) + 1 : 1;
-
     const newProduct = {
-      id: nextId,
       name: String(name).trim(),
       category: String(category).trim(),
       price: parsedPrice,
@@ -183,13 +174,12 @@ const createProduct = (req, res) => {
       quantity: parsedQuantity
     };
 
-    products.push(newProduct);
-    saveProducts(products);
+    const createdProduct = await Product.create(newProduct);
 
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      data: newProduct
+      data: createdProduct
     });
   } catch (error) {
     res.status(500).json({
@@ -201,13 +191,12 @@ const createProduct = (req, res) => {
 };
 
 // PUT update an existing product by ID
-const updateProduct = (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const productId = parseInt(id);
-    const productIndex = products.findIndex(product => product.id === productId);
+    const existingProduct = await Product.findById(id);
 
-    if (productIndex === -1) {
+    if (!existingProduct) {
       return res.status(404).json({
         success: false,
         error: 'Product not found'
@@ -215,7 +204,15 @@ const updateProduct = (req, res) => {
     }
 
     const { name, category, price, description, image, inStock, quantity } = req.body;
-    const updatedProduct = { ...products[productIndex] };
+    const updatedProduct = {
+      name: existingProduct.name,
+      category: existingProduct.category,
+      price: existingProduct.price,
+      description: existingProduct.description,
+      image: existingProduct.image,
+      inStock: existingProduct.inStock,
+      quantity: existingProduct.quantity
+    };
 
     if (name !== undefined) {
       updatedProduct.name = String(name).trim();
@@ -263,13 +260,15 @@ const updateProduct = (req, res) => {
       updatedProduct.inStock = Boolean(inStock);
     }
 
-    products[productIndex] = updatedProduct;
-    saveProducts(products);
+    const savedProduct = await Product.findByIdAndUpdate(id, updatedProduct, {
+      new: true,
+      runValidators: true
+    });
 
     res.status(200).json({
       success: true,
       message: 'Product updated successfully',
-      data: updatedProduct
+      data: savedProduct
     });
   } catch (error) {
     res.status(500).json({
