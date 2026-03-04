@@ -1,5 +1,38 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const uploadDirectory = path.join(__dirname, '../../uploads');
+
+if (!fs.existsSync(uploadDirectory)) {
+  fs.mkdirSync(uploadDirectory, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDirectory);
+  },
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname) || '.jpg';
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${extension.toLowerCase()}`);
+  }
+});
+
+const imageUpload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.startsWith('image/')) {
+      return cb(null, true);
+    }
+
+    cb(new Error('Only image files are allowed'));
+  }
+});
 
 const formatProductResponse = (productDoc) => {
   const product = productDoc.toObject ? productDoc.toObject() : productDoc;
@@ -372,11 +405,44 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const uploadProductImage = (req, res) => {
+  imageUpload.single('image')(req, res, (error) => {
+    if (error) {
+      const isMulterError = error.name === 'MulterError';
+
+      return res.status(400).json({
+        success: false,
+        error: isMulterError ? error.message : 'Image upload failed',
+        message: error.message
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No image file uploaded'
+      });
+    }
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+    res.status(201).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      data: {
+        fileName: req.file.filename,
+        imageUrl
+      }
+    });
+  });
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   getProductsByCategory,
   getProductsPaginated,
   createProduct,
-  updateProduct
+  updateProduct,
+  uploadProductImage
 };

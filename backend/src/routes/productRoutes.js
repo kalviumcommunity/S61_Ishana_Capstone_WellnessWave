@@ -6,7 +6,8 @@ const {
   getProductsByCategory,
   getProductsPaginated,
   createProduct,
-  updateProduct
+  updateProduct,
+  uploadProductImage
 } = require('../controllers/productController');
 
 // GET /api/products & Retrieve all products with optional filters
@@ -14,6 +15,9 @@ router.get('/', getAllProducts);
 
 // POST /api/products & Create a new product
 router.post('/', createProduct);
+
+// POST /api/products/upload-image & Upload product image
+router.post('/upload-image', uploadProductImage);
 
 // PUT /api/products/:id & Update an existing product by ID
 router.put('/:id', updateProduct);

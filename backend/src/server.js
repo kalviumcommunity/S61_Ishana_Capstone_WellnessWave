@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 require('dotenv').config();
 
 const productRoutes = require('./routes/productRoutes');
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 5001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/products', productRoutes);
