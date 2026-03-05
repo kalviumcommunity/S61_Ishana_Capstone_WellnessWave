@@ -32,6 +32,9 @@ Users can search for products by name or category and apply filters based on pri
 ### 3️⃣ Secure Checkout & Multiple Payment Options
 The platform provides a secure checkout process with multiple payment methods. All user and payment information is encrypted to ensure safe and protected transactions.
 
+### 4️⃣ Authentication with Google
+Users can securely sign in using third-party authentication (Google) along with existing username/password login.
+
 ---
 
 ## Capstone Journey – Day-by-Day Plan

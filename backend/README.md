@@ -55,6 +55,10 @@ The server will run on `http://localhost:5001`
   - Requires header: `Authorization: Bearer <token>`
   - Example: `/api/products/3`
 
+- **DELETE /api/products/:id** - Delete an existing product by ID (Protected)
+  - Requires header: `Authorization: Bearer <token>`
+  - Example: `/api/products/3`
+
 - **POST /api/products/upload-image** - Upload product image (Protected)
   - Requires header: `Authorization: Bearer <token>`
 
