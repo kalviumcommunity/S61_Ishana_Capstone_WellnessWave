@@ -405,6 +405,35 @@ const updateProduct = async (req, res) => {
   }
 };
 
+// DELETE remove an existing product by ID
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully',
+      data: {
+        _id: deletedProduct._id
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete product',
+      message: error.message
+    });
+  }
+};
+
 const uploadProductImage = (req, res) => {
   imageUpload.single('image')(req, res, (error) => {
     if (error) {
@@ -444,5 +473,6 @@ module.exports = {
   getProductsPaginated,
   createProduct,
   updateProduct,
+  deleteProduct,
   uploadProductImage
 };

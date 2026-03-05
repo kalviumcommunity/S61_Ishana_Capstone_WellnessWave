@@ -32,6 +32,13 @@
   padding: 8px;
 }
 
+.uploader-card input[type='text'],
+.uploader-card input[type='password'] {
+  border: 1px solid #cfd6de;
+  border-radius: 8px;
+  padding: 10px;
+}
+
 .uploader-card button {
   background: #111827;
   color: #ffffff;
@@ -43,6 +50,12 @@
 .uploader-card button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #cfd6de;
 }
 
 .error-message {
@@ -66,4 +79,48 @@
   object-fit: contain;
   border: 1px solid #e6e8eb;
   border-radius: 8px;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.products-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.product-item {
+  border: 1px solid #e6e8eb;
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.success-message {
+  color: #027a48;
 }
