@@ -1,0 +1,39 @@
+meta {
+  name: Create Product
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/products
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "name": "Zinc Tablets 50mg",
+    "category": "Vitamins & Supplements",
+    "price": 399,
+    "description": "Daily zinc supplement for immune support",
+    "image": "https://example.com/images/zinc-tablets.jpg",
+    "quantity": 35,
+    "inStock": true
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (body && body.data && body.data._id) {
+    bru.setEnvVar("productId", body.data._id);
+  }
+}
