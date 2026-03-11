@@ -1,0 +1,28 @@
+meta {
+  name: Update Product
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/api/products/{{productId}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "price": 449,
+    "quantity": 30,
+    "inStock": true,
+    "description": "Updated zinc supplement description"
+  }
+}

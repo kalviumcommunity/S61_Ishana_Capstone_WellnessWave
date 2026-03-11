@@ -1,0 +1,16 @@
+meta {
+  name: Get Paginated Products
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/products/paginated
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 5
+}

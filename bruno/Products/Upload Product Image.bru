@@ -1,0 +1,27 @@
+meta {
+  name: Upload Product Image
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/products/upload-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:multipart-form {
+  image: @file({{imagePath}})
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (body && body.data && body.data.imageUrl) {
+    bru.setEnvVar("uploadedImageUrl", body.data.imageUrl);
+  }
+}
