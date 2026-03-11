@@ -94,6 +94,9 @@ The server will run on `http://localhost:5001`
 - **GET /api/auth/me** - Get current logged-in user (Protected)
   - Requires header: `Authorization: Bearer <token>`
 
+- **GET /api/auth/verify** - Verify JWT token and return token claims (Protected)
+  - Requires header: `Authorization: Bearer <token>`
+
 ### Environment Variables
 
 - `MONGO_URI` - MongoDB connection string (required)

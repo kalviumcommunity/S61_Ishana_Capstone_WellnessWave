@@ -172,6 +172,22 @@ const me = async (req, res) => {
   }
 };
 
+const verifyToken = (req, res) => {
+  const expiresAt = req.user.exp ? new Date(req.user.exp * 1000).toISOString() : null;
+
+  return res.status(200).json({
+    success: true,
+    message: 'Token is valid',
+    data: {
+      user: {
+        id: req.user.id,
+        username: req.user.username
+      },
+      expiresAt
+    }
+  });
+};
+
 const googleLogin = async (req, res) => {
   try {
     if (!process.env.GOOGLE_CLIENT_ID) {
@@ -250,5 +266,6 @@ module.exports = {
   register,
   login,
   me,
+  verifyToken,
   googleLogin
 };
